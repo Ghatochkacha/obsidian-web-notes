@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Obsidian-ish Notes</title>
+  <style>
+    :root{--bg:#0f1115;--panel:#141821;--panel2:#1a1f2b;--line:#2a3142;--text:#e6e8ef;--muted:#9aa3b5;--accent:#7dd3fc}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 Inter,system-ui,Segoe UI,Arial}
+    .app{display:grid;grid-template-columns:260px 1fr 1fr;height:100vh}
+    .sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column}
+    .top{padding:10px;border-bottom:1px solid var(--line);display:flex;gap:8px}
+    button,input,textarea{font:inherit}
+    button{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+    button:hover{border-color:#3c4962}
+    .new{background:var(--accent);color:#06273a;border:none;font-weight:700}
+    .search{width:100%;background:#0e1320;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}
+    .list{overflow:auto;padding:8px}
+    .item{padding:8px 10px;border:1px solid transparent;border-radius:8px;margin-bottom:6px;cursor:pointer}
+    .item:hover{background:#1a2030}
+    .item.active{background:#1c2737;border-color:#334155}
+    .item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item .m{font-size:12px;color:var(--muted)}
+    .editor{display:flex;flex-direction:column;border-right:1px solid var(--line)}
+    .title{padding:14px 14px 8px}
+    .title input{width:100%;font-size:20px;background:transparent;border:none;color:var(--text);outline:none;font-weight:700}
+    .toolbar{padding:0 14px 10px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    textarea{flex:1;border:none;outline:none;resize:none;background:transparent;color:var(--text);padding:0 14px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .preview{background:var(--panel);padding:14px;overflow:auto}
+    .preview h1,.preview h2,.preview h3{margin-top:1em}
+    .preview code{background:#111827;border:1px solid #293246;padding:1px 4px;border-radius:4px}
+    .preview pre{background:#111827;border:1px solid #293246;padding:10px;border-radius:8px;overflow:auto}
+    .empty{display:grid;place-items:center;color:var(--muted)}
+    .hint{padding:8px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+    @media (max-width: 1000px){.app{grid-template-columns:220px 1fr}.preview{display:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="top"><button class="new" id="newBtn">+ Note</button></div>
+    <div style="padding:8px"><input class="search" id="search" placeholder="Search notes..."/></div>
+    <div class="list" id="list"></div>
+    <div class="hint">Local-first. Data saved in your browser.</div>
+  </aside>
+
+  <section class="editor" id="editorPane">
+    <div class="title"><input id="title" placeholder="Untitled"/></div>
+    <div class="toolbar"><span id="meta">No note selected</span><div><button id="delBtn">Delete</button></div></div>
+    <textarea id="body" placeholder="# Hello\nWrite markdown here..."></textarea>
+  </section>
+
+  <section class="preview" id="preview"></section>
+</div>
+<script>
+const KEY='obsidianish_notes_v1';
+const el={list:document.getElementById('list'),search:document.getElementById('search'),title:document.getElementById('title'),body:document.getElementById('body'),meta:document.getElementById('meta'),preview:document.getElementById('preview'),newBtn:document.getElementById('newBtn'),delBtn:document.getElementById('delBtn')};
+let state={notes:JSON.parse(localStorage.getItem(KEY)||'[]'),active:null};
+if(!state.notes.length){state.notes=[mkNote('Welcome','## Obsidian-ish Notes\n- Left: notes list\n- Middle: editor\n- Right: markdown preview\n\nTry `# headings`, `**bold**`, `- lists`, and ```code```.')];save();}
+state.active=state.notes[0]?.id||null;
+function mkNote(title='Untitled',content=''){const t=Date.now();return{id:crypto.randomUUID(),title,content,createdAt:t,updatedAt:t}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state.notes));}
+function fmt(ts){return new Date(ts).toLocaleString();}
+function escapeHtml(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
+function md(s){let x=escapeHtml(s);x=x.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>');x=x.replace(/```([\s\S]*?)```/g,'<pre><code>$1</code></pre>');x=x.replace(/`([^`]+)`/g,'<code>$1</code>');x=x.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>');x=x.replace(/^- (.*)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');x=x.replace(/\n/g,'<br>');return x;}
+function getActive(){return state.notes.find(n=>n.id===state.active)}
+function renderList(){const q=el.search.value.toLowerCase();const arr=state.notes.filter(n=>(n.title+n.content).toLowerCase().includes(q)).sort((a,b)=>b.updatedAt-a.updatedAt);el.list.innerHTML=arr.map(n=>`<div class="item ${n.id===state.active?'active':''}" data-id="${n.id}"><div class="t">${escapeHtml(n.title||'Untitled')}</div><div class="m">${fmt(n.updatedAt)}</div></div>`).join('');[...el.list.querySelectorAll('.item')].forEach(i=>i.onclick=()=>{state.active=i.dataset.id;render();});}
+function renderEditor(){const n=getActive();if(!n){el.title.value='';el.body.value='';el.meta.textContent='No note selected';el.preview.innerHTML='<div class="empty">No note selected</div>';return;}el.title.value=n.title;el.body.value=n.content;el.meta.textContent=`Updated ${fmt(n.updatedAt)}`;el.preview.innerHTML=md(n.content||'');}
+function render(){renderList();renderEditor();save();}
+function updateActive(){const n=getActive();if(!n)return;n.title=el.title.value||'Untitled';n.content=el.body.value;n.updatedAt=Date.now();render();}
+el.search.oninput=renderList;el.title.oninput=updateActive;el.body.oninput=updateActive;el.newBtn.onclick=()=>{const n=mkNote('Untitled','');state.notes.unshift(n);state.active=n.id;render();};el.delBtn.onclick=()=>{if(!state.active)return;state.notes=state.notes.filter(n=>n.id!==state.active);state.active=state.notes[0]?.id||null;render();};
+render();
+</script>
+</body>
+</html>
