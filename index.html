@@ -4,89 +4,259 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LumaNotes — Think Clearly, Capture Fast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#090d1a;--bg2:#120f25;--panel:#12182b;--panel2:#1b2340;--line:#303b61;--text:#eef2ff;--muted:#a9b4d0;--accent:#8b5cf6;--accent2:#22d3ee;--good:#34d399}
-    *{box-sizing:border-box} body{margin:0;background:radial-gradient(1200px 700px at 0% -10%, #1d2a52 0%, transparent 55%), radial-gradient(900px 500px at 100% 0%, #2c1250 0%, transparent 50%), linear-gradient(160deg,var(--bg),var(--bg2));color:var(--text);font:14px/1.4 Inter,system-ui,Segoe UI,Arial}
-    .app{display:grid;grid-template-columns:260px 1fr 1fr;height:100vh;backdrop-filter: blur(3px)}
-    .sidebar{background:color-mix(in srgb, var(--panel) 88%, transparent);border-right:1px solid var(--line);display:flex;flex-direction:column}
-    .top{padding:10px;border-bottom:1px solid var(--line);display:flex;gap:8px}
+    :root{
+      --bg:#0b1020;
+      --bg2:#121a33;
+      --card:rgba(18,24,48,.72);
+      --card-solid:#161f3f;
+      --line:rgba(129,150,209,.22);
+      --text:#eef3ff;
+      --muted:#9aa9cf;
+      --accent:#8b5cf6;
+      --accent2:#22d3ee;
+      --shadow:0 20px 50px rgba(4,10,28,.45);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;color:var(--text);font-family:Inter,system-ui,Arial,sans-serif;
+      background:
+        radial-gradient(900px 500px at -10% -10%, #2a3474 0%, transparent 52%),
+        radial-gradient(800px 500px at 110% -10%, #3d1d72 0%, transparent 50%),
+        linear-gradient(165deg,var(--bg),var(--bg2));
+      min-height:100vh;
+    }
+
+    .shell{max-width:1280px;margin:20px auto;padding:0 14px}
+    .app{height:min(78vh,860px);display:grid;grid-template-columns:300px 1fr 1fr;gap:12px}
+    .panel{background:var(--card);backdrop-filter: blur(14px);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+    .sidebar{display:flex;flex-direction:column;overflow:hidden}
+    .brand{padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+    .brand h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .top{padding:10px 12px;display:flex;gap:8px}
+
     button,input,textarea{font:inherit}
-    button{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 10px;border-radius:10px;cursor:pointer;transition:.18s transform,.18s border-color,.18s box-shadow}
-    button:hover{border-color:#5a6ca4;transform:translateY(-1px);box-shadow:0 6px 20px rgba(33,56,122,.22)}
-    .new{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;font-weight:700;box-shadow:0 8px 24px rgba(78,70,229,.35)}
-    .search{width:100%;background:#0e1430;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px}
-    .list{overflow:auto;padding:8px}
-    .item{padding:9px 10px;border:1px solid transparent;border-radius:10px;margin-bottom:6px;cursor:pointer;transition:.16s background,.16s border-color}
-    .item:hover{background:#1b2340}
-    .item.active{background:linear-gradient(135deg,#1f2850,#21305f);border-color:#54689e}
+    .btn{border:none;border-radius:11px;padding:10px 12px;background:var(--card-solid);color:var(--text);cursor:pointer;transition:.18s transform,.18s box-shadow,.18s opacity}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(24,39,93,.35)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700}
+    .btn-danger{background:#3a1f2b;color:#ffd6df;border:1px solid #6f3448}
+
+    .search-wrap{padding:0 12px 10px}
+    .search{width:100%;background:#0f1732;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:10px 11px;outline:none}
+    .search:focus{border-color:#89a2ff;box-shadow:0 0 0 3px rgba(115,132,245,.2)}
+
+    .list{overflow:auto;padding:4px 10px 10px}
+    .item{padding:10px 11px;border:1px solid transparent;border-radius:12px;cursor:pointer;margin-bottom:7px;transition:.16s background,.16s border-color}
+    .item:hover{background:rgba(41,56,108,.36)}
+    .item.active{background:linear-gradient(150deg,rgba(53,69,129,.5),rgba(71,43,130,.42));border-color:rgba(145,167,236,.5)}
     .item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item .m{font-size:12px;color:var(--muted)}
-    .editor{display:flex;flex-direction:column;border-right:1px solid var(--line);background:rgba(10,15,34,.55)}
-    .title{padding:14px 14px 8px}
-    .title input{width:100%;font-size:20px;background:transparent;border:none;color:var(--text);outline:none;font-weight:700}
-    .toolbar{padding:0 14px 10px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
-    textarea{flex:1;border:none;outline:none;resize:none;background:transparent;color:var(--text);padding:0 14px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}
-    .preview{background:color-mix(in srgb, var(--panel) 85%, transparent);padding:14px;overflow:auto}
-    .preview h1,.preview h2,.preview h3{margin-top:1em}
-    .preview code{background:#111827;border:1px solid #293246;padding:1px 4px;border-radius:4px}
-    .preview pre{background:#111827;border:1px solid #293246;padding:10px;border-radius:8px;overflow:auto}
-    .empty{display:grid;place-items:center;color:var(--muted)}
-    .hint{padding:8px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
-    @media (max-width: 1000px){.app{grid-template-columns:220px 1fr}.preview{display:none}}
+    .item .m{font-size:12px;color:var(--muted);margin-top:3px}
+    .hint{padding:9px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+
+    .editor{display:flex;flex-direction:column;overflow:hidden}
+    .title{padding:16px 16px 10px}
+    .title input{width:100%;font-size:29px;background:transparent;border:none;color:var(--text);outline:none;font-weight:800;letter-spacing:-.02em}
+    .toolbar{padding:0 16px 10px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+    .textarea-wrap{padding:0 12px 12px;flex:1;display:flex}
+    textarea{width:100%;height:100%;resize:none;border:1px solid var(--line);border-radius:13px;background:rgba(10,16,35,.7);color:var(--text);padding:14px;outline:none;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    textarea:focus{border-color:#89a2ff;box-shadow:0 0 0 3px rgba(115,132,245,.2)}
+
+    .preview{overflow:auto;padding:18px}
+    .preview .inner{min-height:100%;border:1px solid var(--line);border-radius:13px;background:rgba(10,16,35,.6);padding:16px}
+    .preview h1,.preview h2,.preview h3{margin:1.1em 0 .5em}
+    .preview p{color:#d9e5ff}
+    .preview code{background:#111a39;border:1px solid #2f427c;padding:2px 6px;border-radius:6px}
+    .preview pre{background:#101a3a;border:1px solid #2f427c;padding:12px;border-radius:10px;overflow:auto}
+    .preview ul{padding-left:20px}
+    .empty{color:var(--muted)}
+
+    .marketing{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    .card{padding:18px}
+    .hero h2{margin:0 0 7px;font-size:24px}
+    .hero p{margin:0;color:var(--muted)}
+    .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(61,80,146,.34);border:1px solid rgba(135,157,220,.3);color:#dce6ff}
+    details{border-top:1px solid var(--line);padding:10px 0}
+    details:first-child{border-top:none;padding-top:0}
+    summary{cursor:pointer;font-weight:600}
+    details div{color:var(--muted);margin-top:6px}
+
+    @media (max-width:1100px){.app{grid-template-columns:280px 1fr}.preview{display:none}.marketing{grid-template-columns:1fr}}
+    @media (max-width:780px){.app{grid-template-columns:1fr;height:auto}.sidebar{max-height:320px}.editor{min-height:55vh}}
   </style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div style="padding:14px 12px 6px;border-bottom:1px solid var(--line)">
-      <div style="font-weight:800;font-size:18px;letter-spacing:.2px">LumaNotes</div>
-      <div style="color:var(--muted);font-size:12px;margin-top:2px">Think Clearly, Capture Fast.</div>
+  <div class="shell">
+    <div class="app">
+      <aside class="panel sidebar">
+        <div class="brand">
+          <h1>LumaNotes</h1>
+          <p>Think Clearly, Capture Fast.</p>
+        </div>
+        <div class="top">
+          <button class="btn btn-primary" id="newBtn">+ New Note</button>
+        </div>
+        <div class="search-wrap">
+          <input class="search" id="search" placeholder="Search notes..." />
+        </div>
+        <div class="list" id="list"></div>
+        <div class="hint">Markdown notes app • Local-first • No login</div>
+      </aside>
+
+      <section class="panel editor">
+        <div class="title"><input id="title" placeholder="Untitled" /></div>
+        <div class="toolbar">
+          <span id="meta">No note selected</span>
+          <button class="btn btn-danger" id="delBtn">Delete</button>
+        </div>
+        <div class="textarea-wrap">
+          <textarea id="body" placeholder="# Start writing\nYour thoughts, ideas, tasks..."></textarea>
+        </div>
+      </section>
+
+      <section class="panel preview" id="preview"></section>
     </div>
-    <div class="top"><button class="new" id="newBtn">+ New Note</button></div>
-    <div style="padding:8px"><input class="search" id="search" placeholder="Search your notes..."/></div>
-    <div class="list" id="list"></div>
-    <div class="hint">Your markdown notes app — local-first & private.</div>
-  </aside>
 
-  <section class="editor" id="editorPane">
-    <div class="title"><input id="title" placeholder="Untitled"/></div>
-    <div class="toolbar"><span id="meta">No note selected</span><div><button id="delBtn">Delete</button></div></div>
-    <textarea id="body" placeholder="# Hello\nWrite markdown here..."></textarea>
-  </section>
-
-  <section class="preview" id="preview"></section>
-</div>
-
-<section style="padding:26px 18px 34px;max-width:980px;margin:0 auto;">
-  <div style="background:rgba(14,20,46,.75);border:1px solid var(--line);border-radius:14px;padding:18px;">
-    <h2 style="margin:0 0 8px">LumaNotes FAQ</h2>
-    <p style="margin:0 0 14px;color:var(--muted)">A modern notes app for quick capture, markdown writing, and focus.</p>
-    <div style="display:grid;gap:10px;">
-      <details open><summary><strong>What is LumaNotes?</strong></summary><div style="margin-top:6px;color:var(--muted)">LumaNotes is a clean markdown notes app with a notes list, editor, and live preview.</div></details>
-      <details><summary><strong>Is it private?</strong></summary><div style="margin-top:6px;color:var(--muted)">Yes. Notes are stored locally in your browser on your device.</div></details>
-      <details><summary><strong>Do I need an account?</strong></summary><div style="margin-top:6px;color:var(--muted)">No account required. Open and start writing immediately.</div></details>
-      <details><summary><strong>Can I share notes with others?</strong></summary><div style="margin-top:6px;color:var(--muted)">This version is local-first. For sharing, copy/paste note content or export manually.</div></details>
+    <div class="marketing">
+      <section class="panel card hero">
+        <h2>LumaNotes — A beautiful notes app that stays out of your way.</h2>
+        <p>Capture fast, think in markdown, and keep your notes private in the browser.</p>
+        <div class="tags">
+          <span class="tag">Notes App</span>
+          <span class="tag">Markdown Editor</span>
+          <span class="tag">Live Preview</span>
+          <span class="tag">Private by Default</span>
+        </div>
+      </section>
+      <section class="panel card">
+        <h3 style="margin:0 0 8px">FAQ</h3>
+        <details open>
+          <summary>What is LumaNotes?</summary>
+          <div>A clean markdown notes app with three panes: notes list, writing area, and preview.</div>
+        </details>
+        <details>
+          <summary>Do I need to sign up?</summary>
+          <div>No. Open it and write immediately.</div>
+        </details>
+        <details>
+          <summary>Is my data private?</summary>
+          <div>Yes. This version stores notes in your browser on your device.</div>
+        </details>
+        <details>
+          <summary>Can I share this with friends?</summary>
+          <div>Yes. Share the app link. They get their own local notes space.</div>
+        </details>
+      </section>
     </div>
   </div>
-</section>
-<script>
-const KEY='obsidianish_notes_v1';
-const el={list:document.getElementById('list'),search:document.getElementById('search'),title:document.getElementById('title'),body:document.getElementById('body'),meta:document.getElementById('meta'),preview:document.getElementById('preview'),newBtn:document.getElementById('newBtn'),delBtn:document.getElementById('delBtn')};
-let state={notes:JSON.parse(localStorage.getItem(KEY)||'[]'),active:null};
-if(!state.notes.length){state.notes=[mkNote('Welcome to LumaNotes','## Welcome to LumaNotes ✨\nYour focused markdown notes app.\n\n- Left: notes list\n- Middle: editor\n- Right: live preview\n\nTry `# headings`, `**bold**`, `- lists`, and ```code```.')];save();}
-state.active=state.notes[0]?.id||null;
-function mkNote(title='Untitled',content=''){const t=Date.now();return{id:crypto.randomUUID(),title,content,createdAt:t,updatedAt:t}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state.notes));}
-function fmt(ts){return new Date(ts).toLocaleString();}
-function escapeHtml(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
-function md(s){let x=escapeHtml(s);x=x.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>');x=x.replace(/```([\s\S]*?)```/g,'<pre><code>$1</code></pre>');x=x.replace(/`([^`]+)`/g,'<code>$1</code>');x=x.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>');x=x.replace(/^- (.*)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');x=x.replace(/\n/g,'<br>');return x;}
-function getActive(){return state.notes.find(n=>n.id===state.active)}
-function renderList(){const q=el.search.value.toLowerCase();const arr=state.notes.filter(n=>(n.title+n.content).toLowerCase().includes(q)).sort((a,b)=>b.updatedAt-a.updatedAt);el.list.innerHTML=arr.map(n=>`<div class="item ${n.id===state.active?'active':''}" data-id="${n.id}"><div class="t">${escapeHtml(n.title||'Untitled')}</div><div class="m">${fmt(n.updatedAt)}</div></div>`).join('');[...el.list.querySelectorAll('.item')].forEach(i=>i.onclick=()=>{state.active=i.dataset.id;render();});}
-function renderEditor(){const n=getActive();if(!n){el.title.value='';el.body.value='';el.meta.textContent='No note selected';el.preview.innerHTML='<div class="empty">No note selected</div>';return;}el.title.value=n.title;el.body.value=n.content;el.meta.textContent=`Updated ${fmt(n.updatedAt)}`;el.preview.innerHTML=md(n.content||'');}
-function render(){renderList();renderEditor();save();}
-function updateActive(){const n=getActive();if(!n)return;n.title=el.title.value||'Untitled';n.content=el.body.value;n.updatedAt=Date.now();render();}
-el.search.oninput=renderList;el.title.oninput=updateActive;el.body.oninput=updateActive;el.newBtn.onclick=()=>{const n=mkNote('Untitled','');state.notes.unshift(n);state.active=n.id;render();};el.delBtn.onclick=()=>{if(!state.active)return;state.notes=state.notes.filter(n=>n.id!==state.active);state.active=state.notes[0]?.id||null;render();};
-render();
-</script>
+
+  <script>
+    const KEY = 'lumanotes_v2';
+    const el = {
+      list: document.getElementById('list'),
+      search: document.getElementById('search'),
+      title: document.getElementById('title'),
+      body: document.getElementById('body'),
+      meta: document.getElementById('meta'),
+      preview: document.getElementById('preview'),
+      newBtn: document.getElementById('newBtn'),
+      delBtn: document.getElementById('delBtn')
+    };
+
+    let state = { notes: JSON.parse(localStorage.getItem(KEY) || '[]'), active: null };
+
+    function mkNote(title='Untitled', content='') {
+      const t = Date.now();
+      return { id: crypto.randomUUID(), title, content, createdAt: t, updatedAt: t };
+    }
+    function save(){ localStorage.setItem(KEY, JSON.stringify(state.notes)); }
+    function fmt(ts){ return new Date(ts).toLocaleString(); }
+    function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    function md(s){
+      let x = escapeHtml(s);
+      x = x.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>');
+      x = x.replace(/```([\s\S]*?)```/g,'<pre><code>$1</code></pre>');
+      x = x.replace(/`([^`]+)`/g,'<code>$1</code>');
+      x = x.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>');
+      x = x.replace(/^- (.*)$/gm,'<li>$1</li>').replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>');
+      x = x.replace(/\n\n/g,'</p><p>').replace(/^/,'<p>').replace(/$/,'</p>').replace(/\n/g,'<br>');
+      return x;
+    }
+
+    if(!state.notes.length){
+      state.notes = [mkNote('Welcome to LumaNotes', '## Your beautiful notes app\n- Left: note list\n- Middle: markdown editor\n- Right: live preview\n\nStart with today\'s thought or plan.\n\n**Tip:** Use headings and bullet lists for clarity.')];
+      save();
+    }
+    state.active = state.notes[0]?.id || null;
+
+    function getActive(){ return state.notes.find(n => n.id === state.active); }
+
+    function renderList(){
+      const q = el.search.value.toLowerCase().trim();
+      const arr = state.notes
+        .filter(n => (n.title + ' ' + n.content).toLowerCase().includes(q))
+        .sort((a,b)=> b.updatedAt - a.updatedAt);
+
+      el.list.innerHTML = arr.map(n => `
+        <div class="item ${n.id===state.active?'active':''}" data-id="${n.id}">
+          <div class="t">${escapeHtml(n.title || 'Untitled')}</div>
+          <div class="m">Updated ${fmt(n.updatedAt)}</div>
+        </div>
+      `).join('');
+
+      [...el.list.querySelectorAll('.item')].forEach(i => i.onclick = () => { state.active = i.dataset.id; render(); });
+    }
+
+    function renderEditor(){
+      const n = getActive();
+      if(!n){
+        el.title.value=''; el.body.value=''; el.meta.textContent='No note selected';
+        el.preview.innerHTML = '<div class="inner empty">No note selected</div>';
+        return;
+      }
+      el.title.value = n.title;
+      el.body.value = n.content;
+      el.meta.textContent = `Updated ${fmt(n.updatedAt)}`;
+      el.preview.innerHTML = `<div class="inner">${md(n.content || '')}</div>`;
+    }
+
+    function render(){ renderList(); renderEditor(); save(); }
+
+    function updateActive(){
+      const n = getActive(); if(!n) return;
+      n.title = el.title.value || 'Untitled';
+      n.content = el.body.value;
+      n.updatedAt = Date.now();
+      render();
+    }
+
+    el.search.oninput = renderList;
+    el.title.oninput = updateActive;
+    el.body.oninput = updateActive;
+
+    el.newBtn.onclick = () => {
+      const n = mkNote('Untitled','');
+      state.notes.unshift(n);
+      state.active = n.id;
+      render();
+      el.title.focus();
+    };
+
+    el.delBtn.onclick = () => {
+      if(!state.active) return;
+      state.notes = state.notes.filter(n => n.id !== state.active);
+      state.active = state.notes[0]?.id || null;
+      render();
+    };
+
+    render();
+  </script>
 </body>
 </html>
