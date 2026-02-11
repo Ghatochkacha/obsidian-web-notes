@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obsidian-ish Notes</title>
+  <title>LumaNotes — Think Clearly, Capture Fast</title>
   <style>
     :root{--bg:#090d1a;--bg2:#120f25;--panel:#12182b;--panel2:#1b2340;--line:#303b61;--text:#eef2ff;--muted:#a9b4d0;--accent:#8b5cf6;--accent2:#22d3ee;--good:#34d399}
     *{box-sizing:border-box} body{margin:0;background:radial-gradient(1200px 700px at 0% -10%, #1d2a52 0%, transparent 55%), radial-gradient(900px 500px at 100% 0%, #2c1250 0%, transparent 50%), linear-gradient(160deg,var(--bg),var(--bg2));color:var(--text);font:14px/1.4 Inter,system-ui,Segoe UI,Arial}
@@ -38,10 +38,14 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="top"><button class="new" id="newBtn">+ Note</button></div>
-    <div style="padding:8px"><input class="search" id="search" placeholder="Search notes..."/></div>
+    <div style="padding:14px 12px 6px;border-bottom:1px solid var(--line)">
+      <div style="font-weight:800;font-size:18px;letter-spacing:.2px">LumaNotes</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px">Think Clearly, Capture Fast.</div>
+    </div>
+    <div class="top"><button class="new" id="newBtn">+ New Note</button></div>
+    <div style="padding:8px"><input class="search" id="search" placeholder="Search your notes..."/></div>
     <div class="list" id="list"></div>
-    <div class="hint">Local-first. Data saved in your browser.</div>
+    <div class="hint">Your markdown notes app — local-first & private.</div>
   </aside>
 
   <section class="editor" id="editorPane">
@@ -52,11 +56,24 @@
 
   <section class="preview" id="preview"></section>
 </div>
+
+<section style="padding:26px 18px 34px;max-width:980px;margin:0 auto;">
+  <div style="background:rgba(14,20,46,.75);border:1px solid var(--line);border-radius:14px;padding:18px;">
+    <h2 style="margin:0 0 8px">LumaNotes FAQ</h2>
+    <p style="margin:0 0 14px;color:var(--muted)">A modern notes app for quick capture, markdown writing, and focus.</p>
+    <div style="display:grid;gap:10px;">
+      <details open><summary><strong>What is LumaNotes?</strong></summary><div style="margin-top:6px;color:var(--muted)">LumaNotes is a clean markdown notes app with a notes list, editor, and live preview.</div></details>
+      <details><summary><strong>Is it private?</strong></summary><div style="margin-top:6px;color:var(--muted)">Yes. Notes are stored locally in your browser on your device.</div></details>
+      <details><summary><strong>Do I need an account?</strong></summary><div style="margin-top:6px;color:var(--muted)">No account required. Open and start writing immediately.</div></details>
+      <details><summary><strong>Can I share notes with others?</strong></summary><div style="margin-top:6px;color:var(--muted)">This version is local-first. For sharing, copy/paste note content or export manually.</div></details>
+    </div>
+  </div>
+</section>
 <script>
 const KEY='obsidianish_notes_v1';
 const el={list:document.getElementById('list'),search:document.getElementById('search'),title:document.getElementById('title'),body:document.getElementById('body'),meta:document.getElementById('meta'),preview:document.getElementById('preview'),newBtn:document.getElementById('newBtn'),delBtn:document.getElementById('delBtn')};
 let state={notes:JSON.parse(localStorage.getItem(KEY)||'[]'),active:null};
-if(!state.notes.length){state.notes=[mkNote('Welcome','## Obsidian-ish Notes\n- Left: notes list\n- Middle: editor\n- Right: markdown preview\n\nTry `# headings`, `**bold**`, `- lists`, and ```code```.')];save();}
+if(!state.notes.length){state.notes=[mkNote('Welcome to LumaNotes','## Welcome to LumaNotes ✨\nYour focused markdown notes app.\n\n- Left: notes list\n- Middle: editor\n- Right: live preview\n\nTry `# headings`, `**bold**`, `- lists`, and ```code```.')];save();}
 state.active=state.notes[0]?.id||null;
 function mkNote(title='Untitled',content=''){const t=Date.now();return{id:crypto.randomUUID(),title,content,createdAt:t,updatedAt:t}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state.notes));}
